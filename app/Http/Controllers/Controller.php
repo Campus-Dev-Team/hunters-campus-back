@@ -20,8 +20,7 @@ class Controller extends BaseController {
    * @param http_code $status
    * @return json
    */
-  public function respuesta(bool $success, $data, String $mensaje = '', $status)
-  {
+public function respuesta(bool $success, $data, $status, String $mensaje)  {
     return response()->json([
       'success' => $success,
       'data' => $data,
