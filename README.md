@@ -1,93 +1,346 @@
-# hunters-campus-back
+# Hunters Campus (Backend)
 
+Con el objetivo de retomar el proyecto y dotarlo de escalabilidad. A continuación, se describen los aspectos clave del sistema, incluyendo estructura de la base de datos, migraciones, autenticación, endpoints de la API, comandos de desarrollo, pendientes y recomendaciones.
 
+---
 
-## Getting started
+## 1. Migraciones Implementadas
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Las migraciones se encuentran en el directorio `database/migrations/` y se estructuran de la siguiente manera:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. **create_users_table.php**
+    
+    Crea la tabla de usuarios:
+    
+    ```php
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('nombre');
+        $table->string('correo')->unique();
+        $table->string('password');
+        $table->string('color')->nullable();
+        $table->string('logo')->nullable();
+        $table->tinyInteger('tipo')->default(1);
+        $table->timestamps();
+        $table->softDeletes();
+    });
+    
+    ```
+    
+2. **create_retos_table.php**
+    
+    Define la tabla de retos:
+    
+    ```php
+    Schema::create('retos', function (Blueprint $table) {
+        $table->id();
+        $table->string('titulo', 60);
+        $table->text('descripcion');
+        $table->date('fecha');
+        $table->time('hora');
+        $table->string('lugar', 40);
+        $table->integer('cantidad');
+        $table->integer('puntos');
+        $table->tinyInteger('estado')->default(1);
+        // Llaves foráneas
+        $table->foreignId('created_by')->constrained('users');
+        $table->foreignId('id_user_2')->nullable()->constrained('users');
+        $table->foreignId('id_user_3')->nullable()->constrained('users');
+        $table->foreignId('id_user_4')->nullable()->constrained('users');
+        $table->timestamps();
+        $table->softDeletes();
+    });
+    
+    ```
+    
+3. **create_torneos_table.php**
+4. **create_users_miembros_table.php**
+5. **create_users_puntos_table.php**
+6. **create_retos_miembros_table.php**
+7. **create_retos_comentarios_table.php**
+8. **create_torneos_comentarios_table.php**
+9. **create_torneos_puntos_table.php**
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 2. Seeders Implementados
+
+Los seeders se encuentran en el directorio `database/seeds/` y siguen la estructura de Laravel < 8.0:
+
+1. **DatabaseSeeder.php**
+    
+    Seeder principal que orquesta la ejecución de los siguientes seeders:
+    
+    ```php
+    class DatabaseSeeder extends Seeder
+    {
+        public function run()
+        {
+            $this->call([
+                UsersTableSeeder::class,
+                UsersMiembrosTableSeeder::class,
+                RetosTableSeeder::class,
+                TorneosTableSeeder::class,
+                // ...otros seeders
+            ]);
+        }
+    }
+    
+    ```
+    
+2. **UsersTableSeeder.php**
+    - Crea el usuario admin y las tribus iniciales.
+    - Establece correos y contraseñas de prueba.
+3. **UsersMiembrosTableSeeder.php**
+    - Genera miembros para cada tribu, asignando líderes y miembros regulares.
+4. **RetosTableSeeder.php**
+    - Genera retos de prueba y asigna participantes y estados aleatorios.
+5. **TorneosTableSeeder.php**
+    - Crea torneos de ejemplo con fechas y descripciones definidas.
+6. **UsersPuntosTableSeeder.php**
+    - Simula puntuaciones históricas y la participación en retos y torneos.
+7. **RetosMiembrosTableSeeder.php**
+8. **RetosComentariosTableSeeder.php**
+9. **TorneosComentariosTableSeeder.php**
+10. **TorneosPuntosTableSeeder.php**
+
+---
+
+## 3. Estructura de la Base de Datos
+
+### 3.1 Relaciones Principales
+
+- **Users** → **Users_Miembros**: 1:N
+- **Users** → **Retos**: 1:N
+- **Users** → **Torneos**: 1:N
+- **Users** → **Users_Puntos**: 1:N
+- **Retos** → **Retos_Comentarios**: 1:N
+- **Torneos** → **Torneos_Comentarios**: 1:N
+- **Users_Miembros** → **Retos_Miembros**: 1:N
+
+### 3.2 Diagrama ER
+
+https://claude.site/artifacts/69d6a17e-4789-4f01-aa82-3818290daa4a 
+
+```mermaid
+erDiagram
+    USERS ||--o{ USERS_MIEMBROS : "tiene"
+    USERS ||--o{ RETOS : "crea/participa"
+    USERS ||--o{ TORNEOS : "crea"
+    USERS ||--o{ USERS_PUNTOS : "tiene"
+    RETOS ||--o{ RETOS_COMENTARIOS : "tiene"
+    RETOS ||--o{ RETOS_MIEMBROS : "tiene"
+    TORNEOS ||--o{ TORNEOS_COMENTARIOS : "tiene"
+    TORNEOS ||--o{ TORNEOS_PUNTOS : "tiene"
+    USERS_MIEMBROS ||--o{ RETOS_MIEMBROS : "participa"
+
+    USERS {
+        int id PK
+        string nombre
+        string correo UK
+        string password
+        string color
+        string logo
+        int tipo
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    RETOS {
+        int id PK
+        string titulo
+        text descripcion
+        date fecha
+        time hora
+        string lugar
+        int cantidad
+        int puntos
+        int estado
+        int created_by FK
+        int id_user_2 FK
+        int id_user_3 FK
+        int id_user_4 FK
+        int id_user_ganador FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    TORNEOS {
+        int id PK
+        string titulo
+        text descripcion
+        date fecha
+        int estado
+        int created_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    USERS_MIEMBROS {
+        int id PK
+        string nombre
+        string empresa
+        boolean lider
+        string leeche_cliente_id
+        boolean comercial
+        date inicio
+        date fin
+        int estado
+        int id_user FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    USERS_PUNTOS {
+        int id PK
+        int tipo
+        int puntos_afectado
+        int puntos_anteriores
+        int puntos_nuevos
+        int afectacion
+        string manual_nombre
+        text manual_descripcion
+        int id_user FK
+        int id_reto FK
+        int id_torneo FK
+        int created_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    RETOS_MIEMBROS {
+        int id PK
+        int puntos
+        text comentario
+        int id_miembro FK
+        int id_reto FK
+        int id_torneo FK
+        int created_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    RETOS_COMENTARIOS {
+        int id PK
+        text comentario
+        int id_reto FK
+        int created_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    TORNEOS_COMENTARIOS {
+        int id PK
+        text comentario
+        int id_torneo FK
+        int created_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    TORNEOS_PUNTOS {
+        int id PK
+        int puntos
+        int juegos
+        int victorias
+        int id_torneo FK
+        int id_user FK
+        int created_by FK
+        int updated_by FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/campers4/hunters-campus-back.git
-git branch -M main
-git push -uf origin main
+
+[er-diagram.mermaid](attachment:74a52da7-a6e7-467f-bbd6-7b1b09724d3e:er-diagram.mermaid)
+
+---
+
+## 4. Sistema de Autenticación
+
+### 4.1 Implementación JWT en el Backend
+
+El backend cuenta con un sistema de autenticación basado en JWT (`tymon/jwt-auth`), permitiendo el manejo de sesiones seguras. Se configura en `.env` mediante `JWT_SECRET`.
+
+### 4.2 Limitaciones en el Frontend
+
+A pesar de que JWT está implementado en el backend, **no se está utilizando en el frontend**. En su lugar, el frontend solicita una contraseña al usuario cuando se requiere realizar cambios como agregar un torneo. Esta contraseña se compara directamente con cualquier registro en la base de datos sin ningún tipo de hash o encriptación, lo que representa un problema de seguridad significativo.
+
+### 4.3 Endpoints de Autenticación
+
+- **Login con correo:**
+    
+    ```
+    POST /api/auth/login
+    Content-Type: application/json
+    {
+        "correo": "admin@campus.com",
+        "password": "admin123"
+    }
+    ```
+    
+- **Pedir contraseña (Verificacion que se usa en el fronend):**
+    
+    ```
+    POST /api/auth/pedir-password
+    Content-Type: application/json
+    {
+        "password": "alpha123"
+    }
+    ```
+    
+
+```
+POST /api/auth/login       # Autenticación con correo y password
+POST /api/auth/pedir-password  # Verificación mediante password
+
 ```
 
-## Integrate with your tools
+### 4.2 Códigos de Estado
 
-- [ ] [Set up project integrations](https://gitlab.com/campers4/hunters-campus-back/-/settings/integrations)
+- **200:** Éxito
+- **400:** Credenciales inválidas
+- **401:** No autorizado
+- **500:** Error del servidor
 
-## Collaborate with your team
+---
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## 5. Comandos de Desarrollo
 
-## Test and Deploy
+### 5.1 Instalación Inicial
 
-Use the built-in continuous integration in GitLab.
+```bash
+composer install
+php artisan key:generate
+php artisan jwt:secret
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```
 
-***
+### 5.2 Gestión de la Base de Datos
 
-# Editing this README
+```bash
+php artisan migrate          # Ejecuta las migraciones
+php artisan migrate:fresh    # Recrea la base de datos desde cero
+php artisan db:seed          # Pobla la base de datos con datos de prueba
+composer dump-autoload       # Actualiza el autoloader
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```
 
-## Suggestions for a good README
+---
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 6. Pendientes de Implementación
 
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+1. Integrar carga de archivos a S3.
+2. Optimizar Manejo del ORM agregando las relaciones en los modelos
+3. Implementar un JWT seguro desde el fronent y en todas las rutas excepto el login y register
+4. Documentar endpoints adicionales.

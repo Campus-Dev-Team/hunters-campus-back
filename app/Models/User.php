@@ -24,6 +24,7 @@ class User extends Authenticatable implements JWTSubject {
         'logo',
         'descripcion',
         'password',
+        'correo',     // faltaba esto
         'created_by',
         'updated_by',
     ];

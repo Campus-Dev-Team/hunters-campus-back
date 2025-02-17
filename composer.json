@@ -16,7 +16,7 @@
         "laravel/framework": "^7.29",
         "laravel/tinker": "^2.5",
         "league/flysystem-aws-s3-v3": "^1.0",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "^1.0@dev"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
