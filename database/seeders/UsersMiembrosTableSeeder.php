@@ -11,7 +11,7 @@ class UsersMiembrosTableSeeder extends Seeder
     {
         // Obtener IDs de las tribus (excluyendo al admin)
         $tribusIds = DB::table('users')
-            ->where('tipo', 1)
+            ->where('tipo', 1) // Solo usuarios que son tribus
             ->pluck('id');
 
         foreach ($tribusIds as $tribuId) {
@@ -28,7 +28,7 @@ class UsersMiembrosTableSeeder extends Seeder
                 'updated_at' => now()
             ]);
 
-            // Crear 3-5 miembros regulares para cada tribu
+            // Crear de 3 a 5 miembros regulares para cada tribu
             $numMiembros = rand(3, 5);
             for ($i = 1; $i <= $numMiembros; $i++) {
                 DB::table('users_miembros')->insert([

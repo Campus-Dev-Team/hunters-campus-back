@@ -13,7 +13,6 @@ class CreateUsersMiembrosTable extends Migration
             $table->string('nombre');
             $table->string('empresa')->nullable();
             $table->boolean('lider')->default(false);
-            $table->string('cliente_id')->nullable();
             $table->boolean('comercial')->default(false);
             $table->date('inicio');
             $table->date('fin')->nullable();
@@ -30,4 +29,4 @@ class CreateUsersMiembrosTable extends Migration
     {
         Schema::dropIfExists('users_miembros');
     }
-};
+}
