@@ -1,6 +1,8 @@
 <?php
-Route::prefix('util')->namespace('Util')->group(function () {
-    $controlador = 'UtilController';
-    Route::get('tribus-select', "$controlador@tribusSelect");
-    Route::get('integrantes-tribu-select/{id}', "$controlador@integrantesTribuSelect");
+
+use App\Http\Controllers\Util\UtilController;
+
+Route::prefix('util')->group(function () {
+    Route::get('tribus-select', [UtilController::class, 'tribusSelect']);
+    Route::get('integrantes-tribu-select/{id}', [UtilController::class, 'integrantesTribuSelect']);
 });

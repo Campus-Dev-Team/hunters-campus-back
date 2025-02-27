@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Torneos;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Controller;
 use App\Models\RetosMiembros;
 use App\Models\Torneos;

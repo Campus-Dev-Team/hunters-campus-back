@@ -3,10 +3,10 @@
 namespace App\Http\Traits;
 
 use Carbon\Carbon;
-use DB;
-use Config;
-use Storage, Image;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 trait ImagesTrait {
     /*
@@ -59,7 +59,7 @@ trait ImagesTrait {
                 'ruta' => $subruta,
                 'ruta_mini' => $subruta_mini
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //return $e;
             return [
                 'estado' => false,

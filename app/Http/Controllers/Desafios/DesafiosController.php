@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Torneos;
 use App\Models\Desafios;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 

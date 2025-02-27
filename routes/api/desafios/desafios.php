@@ -1,15 +1,15 @@
 <?php
-Route::prefix('desafios')->namespace('Desafios')->group(function () {
-    $controlador = 'DesafiosController';
 
-    Route::get('disponibles', "$controlador@getDesafios");
-    Route::get('programados', "$controlador@getDesafios");
-    Route::get('finalizados', "$controlador@getDesafios");
-    Route::get('especiales', "$controlador@getDesafiosEspeciales");
-    Route::get('otros', "$controlador@getOtrosDesafios");
-    Route::get('info_torneo/{id}', "$controlador@getConsultarTorneo");
-    Route::post('crear_torneo', "$controlador@postCrearTorneo");
-    Route::put('{id}/editar_torneo', "$controlador@putEditarTorneo");
-    
+use App\Http\Controllers\Desafios\DesafiosController;
+
+Route::group(['prefix' => 'desafios'], function () {
+    Route::get('disponibles', [DesafiosController::class, 'getDesafios']);
+    Route::get('programados', [DesafiosController::class, 'getDesafios']);
+    Route::get('finalizados', [DesafiosController::class, 'getDesafios']);
+    Route::get('especiales', [DesafiosController::class, 'getDesafiosEspeciales']);
+    Route::get('otros', [DesafiosController::class, 'getOtrosDesafios']);
+    Route::get('info_torneo/{id}', [DesafiosController::class, 'getConsultarTorneo']);
+    Route::post('crear_torneo', [DesafiosController::class, 'postCrearTorneo']);
+    Route::put('{id}/editar_torneo', [DesafiosController::class, 'putEditarTorneo']);
 });
 

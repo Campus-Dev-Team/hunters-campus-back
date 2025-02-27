@@ -1,6 +1,7 @@
 <?php
 
-Route::prefix('puntos/ver')->namespace('Puntos')->group(function() {
-    $controller = "VerPuntoController";
-    Route::get('datos/{idPunto}', "$controller@datos");
+use App\Http\Controllers\Puntos\VerPuntoController;
+
+Route::group(['prefix' => 'puntos/ver'], function() {
+    Route::get('datos/{idPunto}', [VerPuntoController::class, 'datos']);
 });

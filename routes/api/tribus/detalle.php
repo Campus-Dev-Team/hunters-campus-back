@@ -1,6 +1,7 @@
 <?php
 
-Route::prefix('tribus/detalle')->namespace('Tribus')->group(function() {
-    $controller = "DetalleController";
-    Route::get('datos/{idTribu}', "$controller@datos");
+use App\Http\Controllers\Tribus\DetalleController;
+
+Route::group(['prefix' => 'tribus/detalle'], function() {
+    Route::get('datos/{idTribu}', [DetalleController::class, 'datos']);
 });

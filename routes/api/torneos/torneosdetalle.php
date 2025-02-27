@@ -1,23 +1,21 @@
 <?php
-Route::prefix('torneos')->namespace('Torneos')->group(function () {
-    $controlador = 'TorneoDetalleController';
 
-    Route::get('mostrar/{id}', "$controlador@mostrar");
-    Route::post('comentarios', "$controlador@crearComentario");
-    Route::patch('{id}/aceptar', "$controlador@aceptarDesafio");
-    Route::get('ranking/{id}', "$controlador@ranking");
-    Route::post('{id}/actualizar-puntuacion', "$controlador@actualizarPuntuacion");
-    Route::delete('{id}', "$controlador@eliminarTorneo");
-    Route::post('{id}/reportar-ausencia', "$controlador@reportarAusencia");
+use App\Http\Controllers\Torneos\TorneoDetalleController;
+use App\Http\Controllers\Torneos\TorneosPuntosController;
 
+Route::group(['prefix' => 'torneos'], function () {
+    // Rutas de TorneoDetalleController
+    Route::get('mostrar/{id}', [TorneoDetalleController::class, 'mostrar']);
+    Route::post('comentarios', [TorneoDetalleController::class, 'crearComentario']);
+    Route::patch('{id}/aceptar', [TorneoDetalleController::class, 'aceptarDesafio']);
+    Route::get('ranking/{id}', [TorneoDetalleController::class, 'ranking']);
+    Route::post('{id}/actualizar-puntuacion', [TorneoDetalleController::class, 'actualizarPuntuacion']);
+    Route::delete('{id}', [TorneoDetalleController::class, 'eliminarTorneo']);
+    Route::post('{id}/reportar-ausencia', [TorneoDetalleController::class, 'reportarAusencia']);
 
-    //Rutas de otorgar puntos----------------------------------------------------
-    $controller2 = "TorneosPuntosController";
-    Route::get('{id}/get/asignar/puntos', "$controller2@getTorneo");
-    Route::post('{id}/asignar/puntos', "$controller2@asignarPuntosTorneo");
-
-    //Rutas de eventos especiales----------------------------------------------------
-    Route::get('get/tribus', "$controller2@getTribus");
-    Route::post('asignar/puntos/especiales', "$controller2@asignarPuntosEvento");
-    
+    // Rutas de TorneosPuntosController
+    Route::get('{id}/get/asignar/puntos', [TorneosPuntosController::class, 'getTorneo']);
+    Route::post('{id}/asignar/puntos', [TorneosPuntosController::class, 'asignarPuntosTorneo']);
+    Route::get('get/tribus', [TorneosPuntosController::class, 'getTribus']);
+    Route::post('asignar/puntos/especiales', [TorneosPuntosController::class, 'asignarPuntosEvento']);
 });

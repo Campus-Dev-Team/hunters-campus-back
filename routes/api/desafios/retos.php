@@ -1,7 +1,9 @@
 <?php
-Route::prefix('retos')->namespace('Desafios')->group(function () {
-    $controller = "RetosController";
-    Route::get('{idReto}', "$controller@ver");
-    Route::post('crear', "$controller@crear");
-    Route::put('editar/{idReto}', "$controller@editar");
+
+use App\Http\Controllers\Desafios\RetosController;
+
+Route::group(['prefix' => 'retos'], function () {
+    Route::get('{idReto}', [RetosController::class, 'ver']);
+    Route::post('crear', [RetosController::class, 'crear']);
+    Route::put('editar/{idReto}', [RetosController::class, 'editar']);
 });

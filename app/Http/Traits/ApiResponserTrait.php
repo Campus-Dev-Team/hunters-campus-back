@@ -3,19 +3,17 @@
 namespace App\Http\Traits;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-
+use Symfony\Component\HttpFoundation\Response;
 use Carbon\Carbon;
-
 
 trait ApiResponserTrait
 {
     /**
      * susccesResponse
      *
-     * @param  string $data
+     * @param  array $data
      * @param  int  $code
-     * @return Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function successResponse($data = [], $code = Response::HTTP_OK): JsonResponse
     {
@@ -23,14 +21,15 @@ trait ApiResponserTrait
         $data = $exito->merge($data);
         return response()->json($data, $code);
     }
+
     /**
      * errorResponse
      *
-     * @param  string $message
+     * @param  array $data
      * @param  int $code
-     * @return Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function errorResponse($data = [], $code = 400): JsonResponse
+    public function errorResponse($data = [], $code = Response::HTTP_BAD_REQUEST): JsonResponse
     {
         $exito = collect(['exito' => false]);
         $data = $exito->merge($data);
@@ -40,13 +39,13 @@ trait ApiResponserTrait
     /**
      * Captura una excepción y genera un response a partir de ella
      *
-     * @param  Exception $excepcion = Excepción capturada
-     * @param  String $titulo (opcional) = Título del error desplegado para el cliente
-     * @param  String $mensaje (opcional) = Mensaje del error desplegado para el cliente
-     * @param  Int $http_status_code (opcional) = código de error HTTP, con el que responderá la petición (4xx)
-     * @return Response
+     * @param  \Throwable $excepcion Excepción capturada
+     * @param  string|null $titulo Título del error desplegado para el cliente
+     * @param  string|null $mensaje Mensaje del error desplegado para el cliente
+     * @param  int $http_status_code código de error HTTP, con el que responderá la petición (4xx)
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function capturar($excepcion, String $titulo = null, String $mensaje = null, Int $http_status_code = 400): Response
+    public function capturar($excepcion, ?string $titulo = null, ?string $mensaje = null, int $http_status_code = Response::HTTP_BAD_REQUEST): Response
     {
         $validationException = is_a($excepcion, 'Illuminate\Validation\ValidationException');
 
@@ -55,7 +54,7 @@ trait ApiResponserTrait
             $mensaje = collect($excepcion->errors())->flatten()->join(' ');
         }
 
-        $http_status_code = $validationException || $http_status_code === 0 ? 422 : $http_status_code;
+        $http_status_code = $validationException || $http_status_code === 0 ? Response::HTTP_UNPROCESSABLE_ENTITY : $http_status_code;
 
         $response = [
             'timestamp'   => Carbon::now()->format('d/m/y h:i A'),

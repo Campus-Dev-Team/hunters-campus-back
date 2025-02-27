@@ -344,3 +344,104 @@ composer dump-autoload       # Actualiza el autoloader
 2. Optimizar Manejo del ORM agregando las relaciones en los modelos
 3. Implementar un JWT seguro desde el fronent y en todas las rutas excepto el login y register
 4. Documentar endpoints adicionales.
+
+
+---
+
+
+# Informe de Despliegue: Aplicación Laravel en Heroku
+
+## 1. Configuración Inicial
+- Se verificó la versión de Laravel (Laravel 7)
+- Se configuró el entorno local para trabajar con PHP 8.1
+- Se aseguró la existencia de los archivos necesarios como `Procfile` y configuraciones de base de datos
+
+## 2. Preparación del Proyecto
+Se realizaron los siguientes ajustes:
+
+### 2.1 Configuración de Composer
+Se modificó el `composer.json` para soportar PHP 8.1:
+```json
+{
+    "require": {
+        "php": "^7.4|^8.0|^8.1",
+        "laravel/framework": "^8.83"
+    }
+}
+```
+
+### 2.2 Configuración de Heroku
+Se configuró el buildpack de PHP:
+```bash
+heroku buildpacks:set heroku/php
+```
+
+### 2.3 Configuración de Base de Datos
+Se establecieron las variables de entorno en Heroku para la conexión con Railway:
+- DB_CONNECTION: mysql
+- DB_HOST: yamabiko.proxy.rlwy.net
+- DB_PORT: 54493
+- DB_DATABASE: railway
+- DB_USERNAME: root
+- DB_PASSWORD: [contraseña segura]
+
+## 3. Proceso de Despliegue
+
+### 3.1 Comandos de Git
+```bash
+git add .
+git commit -m "Preparación para despliegue en Heroku"
+git push heroku main
+```
+
+### 3.2 Configuración de Variables de Entorno
+Se configuraron las variables necesarias en Heroku:
+```bash
+heroku config:set APP_NAME=Laravel
+heroku config:set APP_ENV=production
+heroku config:set APP_KEY=[key-generada]
+heroku config:set APP_DEBUG=false
+```
+
+### 3.3 Configuración del AppServiceProvider
+Se modificó para soportar la configuración regional y la longitud de cadenas en la base de datos:
+```php
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
+
+public function boot()
+{
+    Carbon::setlocale('es');
+    setlocale(LC_TIME, 'es_ES.utf8');
+    Schema::defaultStringLength(191);
+}
+```
+
+## 4. Solución de Problemas
+
+### 4.1 Problemas Resueltos
+- Error de autenticación con Git: Se solucionó mediante reconfiguración de credenciales
+- Problemas de compatibilidad PHP: Se ajustó la versión en el `composer.json`
+- Error de acceso a base de datos: Se corrigió la contraseña en las variables de entorno
+
+### 4.2 Configuraciones Adicionales
+- Se añadió soporte para HTTPS
+- Se configuró el manejo de archivos estáticos
+- Se estableció el modo de producción
+
+## 5. Resultado Final
+- La aplicación se desplegó exitosamente en: https://hunters-back-e4fc0bfa2341.herokuapp.com/
+- Se verificó el funcionamiento de las APIs
+- Se comprobó la conexión con la base de datos
+
+## 6. Recomendaciones
+- Mantener respaldo regular de la base de datos
+- Monitorear el uso de recursos en Heroku
+- Mantener actualizadas las dependencias del proyecto
+- Verificar regularmente los logs para detectar posibles errores
+
+## 7. Próximos Pasos
+- Implementar sistema de monitoreo
+- Optimizar consultas de base de datos
+- Configurar sistema de caché
+- Implementar pruebas automatizadas

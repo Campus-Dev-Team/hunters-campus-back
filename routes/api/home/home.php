@@ -1,5 +1,7 @@
 <?php
-Route::prefix('home')->group(function ()
-{
-    Route::get('get-tribus', 'Home\TribusController@getTribus');
+
+use App\Http\Controllers\Home\TribusController;
+
+Route::group(['prefix' => 'home'], function () {
+    Route::get('get-tribus', [TribusController::class, 'getTribus']);
 });
