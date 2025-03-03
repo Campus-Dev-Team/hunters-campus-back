@@ -17,6 +17,10 @@ class DesafiosCrudController extends Controller
     try {
       $desafio = Desafios::with(['comentarios','tribu_actualiza'])->find($id);
 
+      if (!$desafio) {
+        return $this->respuesta(false, [], 'No se encontró el desafío', 404);
+      }
+
       switch ($desafio->cantidad) {
         case 2:
           $desafio->tribu1 = User::find($desafio->created_by);
@@ -34,7 +38,6 @@ class DesafiosCrudController extends Controller
           $desafio->tribu4 = User::find($desafio->id_user_4);
           break;
       }
-
 
       return $this->respuesta(true, $desafio, 'Desafío encontrado', 200);
     } catch (\Throwable $th) {

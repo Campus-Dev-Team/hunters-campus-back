@@ -209,26 +209,34 @@ class DesafiosController extends Controller
     }
 
     public function mostrar($id){
-        $desafio = Desafios::with(['comentarios'])->find($id);
-  
-       switch ($desafio->cantidad) {
-         case 2:
-          $desafio->tribu1 = User::find($desafio->created_by);
-          $desafio->tribu2 = User::find($desafio->id_user_2);
-           break;
-         case 3:
-          $desafio->tribu1 = User::find($desafio->created_by);
-          $desafio->tribu2 = User::find($desafio->id_user_2);
-          $desafio->tribu3 = User::find($desafio->id_user_3);
-           break;
-         case 4:
-          $desafio->tribu1 = User::find($desafio->created_by);
-          $desafio->tribu2 = User::find($desafio->id_user_2);
-          $desafio->tribu3 = User::find($desafio->id_user_3);
-          $desafio->tribu4 = User::find($desafio->id_user_4);
-           break;  
-       }
-  
-        return $this->respuesta(true, $desafio, 'Desafío encontrado', 200);
-      }
+        try {
+            $desafio = Desafios::with(['comentarios'])->find($id);
+
+            if (!$desafio) {
+                return $this->respuesta(false, [], 'No se encontró el desafío', 404);
+            }
+        
+            switch ($desafio->cantidad) {
+                case 2:
+                    $desafio->tribu1 = User::find($desafio->created_by);
+                    $desafio->tribu2 = User::find($desafio->id_user_2);
+                    break;
+                case 3:
+                    $desafio->tribu1 = User::find($desafio->created_by);
+                    $desafio->tribu2 = User::find($desafio->id_user_2);
+                    $desafio->tribu3 = User::find($desafio->id_user_3);
+                    break;
+                case 4:
+                    $desafio->tribu1 = User::find($desafio->created_by);
+                    $desafio->tribu2 = User::find($desafio->id_user_2);
+                    $desafio->tribu3 = User::find($desafio->id_user_3);
+                    $desafio->tribu4 = User::find($desafio->id_user_4);
+                    break;  
+            }
+        
+            return $this->respuesta(true, $desafio, 'Desafío encontrado', 200);
+        } catch (\Throwable $th) {
+            return $this->capturar($th);
+        }
+    }
 }

@@ -45,7 +45,7 @@ trait ApiResponserTrait
      * @param  int $http_status_code código de error HTTP, con el que responderá la petición (4xx)
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function capturar($excepcion, ?string $titulo = null, ?string $mensaje = null, int $http_status_code = Response::HTTP_BAD_REQUEST): Response
+    public function capturar($excepcion, ?string $titulo = null, ?string $mensaje = null, int $http_status_code = Response::HTTP_BAD_REQUEST): JsonResponse
     {
         $validationException = is_a($excepcion, 'Illuminate\Validation\ValidationException');
 
@@ -54,17 +54,17 @@ trait ApiResponserTrait
             $mensaje = collect($excepcion->errors())->flatten()->join(' ');
         }
 
-        $http_status_code = $validationException || $http_status_code === 0 ? Response::HTTP_UNPROCESSABLE_ENTITY : $http_status_code;
+        $titulo = $titulo ?? 'Ha ocurrido un error al ejecutar la consulta';
+        $mensaje = $mensaje ?? $excepcion->getMessage();
+        $error = $excepcion->getMessage() . ' - Archivo: ' . $excepcion->getFile() . ' - Línea: ' . $excepcion->getLine();
 
-        $response = [
-            'timestamp'   => Carbon::now()->format('d/m/y h:i A'),
-            'status'      => $http_status_code,
-            'titulo'      => $titulo ?? 'Ha ocurrido un error al ejecutar la consulta',
-            'mensaje'     => $mensaje ?? $excepcion->getMessage(),
-            'error'       => "{$excepcion->getMessage()} - Archivo: {$excepcion->getFile()} - Línea: {$excepcion->getLine()}",
+        return response()->json([
+            'timestamp' => now()->format('d/m/y h:i A'),
+            'status' => $http_status_code,
+            'titulo' => $titulo,
+            'mensaje' => $mensaje,
+            'error' => $error,
             'validaciones' => $validationException ? $excepcion->errors() : null
-        ];
-
-        return response($response, $http_status_code);
+        ], $http_status_code);
     }
 }

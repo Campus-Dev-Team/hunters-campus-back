@@ -14,7 +14,7 @@ class Desafios extends Model
 
     // TRIBUS
     public function tribu1(){
-      return $this->hasOne(User::class, 'id', 'id_user_1');
+      return $this->hasOne(User::class, 'id', 'created_by');
     }
 
     public function tribu2(){
