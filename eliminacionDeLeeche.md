@@ -1,7 +1,3 @@
-Aquí tienes la documentación del cambio realizado en el **TribusController**, incluyendo la eliminación de referencias a "leeche", la modificación de migraciones, seeders y rutas.
-
----
-
 ## **Documentación del Cambio en TribusController**
 
 ### **Objetivo del Cambio**
@@ -130,7 +126,3 @@ Route::group(['prefix' => 'tribus/detalle'], function() {
 
 ### **5. Conclusión**
 Estos cambios eliminan completamente la dependencia del sistema "leeche", haciendo que las tribus sean autogestionadas sin datos de compras o referencias externas. Además, la ruta ha sido centralizada en el `TribusController` para mayor claridad en la organización del código.
-
----
-
-Si necesitas algún otro detalle o ajuste en la documentación, avísame. 🚀
